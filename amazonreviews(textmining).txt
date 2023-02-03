@@ -1,0 +1,70 @@
+# Below program is executed in python 3.5 environment 
+import requests   # Importing requests to extract content from a url
+from bs4 import BeautifulSoup as bs # Beautifulsoup is for web scrapping...used to scrap specific content 
+import re 
+from nltk.corpus import stopwords
+
+import matplotlib.pyplot as plt
+from wordcloud import WordCloud
+
+iphone_reviews=[]
+iphone_reviews=[]
+for i in range(1,20):
+  ip=[]  
+  url="https://www.amazon.in/Apple-iPhone-X-64GB-Silver/product-reviews/B0711T2L8K/ref=cm_cr_arp_d_paging_btm_next_2?showViewpoints=1&pageNumber="+str(i)
+  response = requests.get(url)
+  soup = bs(response.content,"html.parser")# creating soup object to iterate over the extracted content 
+  reviews = soup.findAll("span",attrs={"class","a-size-base review-text review-text-content"})# Extracting the content under specific tags  
+  for i in range(len(reviews)):
+    ip.append(reviews[i].text)  
+  iphone_reviews=iphone_reviews+ip 
+  
+with open("iphone.txt","w",encoding = "utf-8") as output:
+    output.write(str(iphone_reviews))
+import os
+os.getcwd()
+
+ip_string_join = " ".join(iphone_reviews)
+
+ip_string_join = re.sub("[^A-Za-z" "]+"," ",ip_string_join).lower()
+ip_string_join = re.sub("[0-9" "]+"," ",ip_string_join)
+ip_string_join = ip_string_join.split(" ")
+
+with open("E:/data sets/text mining/sw.txt") as sw:
+    stopwords = sw.read()
+    
+ip_string_words = [i for i in ip_string_join if i not in stopwords]
+ip_string_words_join = " ".join(ip_string_words)
+wordcloud_stw = WordCloud(
+                background_color= 'black',
+                width = 1800,
+                height = 1500
+                ).generate(ip_string_words_join)
+plt.imshow(wordcloud_stw)
+ with open("E:/data sets/text mining/positive-words.txt") as pw:
+     positive_words = pw.read()
+positive_words = positive_words.split("\n")
+positive_words = positive_words[36:]
+ 
+ip_string_posw = " ".join([w for w in ip_string_words if w in positive_words])
+wordcloud_pos = WordCloud(
+                background_color = 'black',
+                width = 1800,
+                height = 1300
+                ).generate(ip_string_posw)
+plt.imshow(wordcloud_pos)
+
+with open("E:/data sets/text mining/negative-words.txt") as nw:
+    negative_words = nw.read()
+    
+negative_words = negative_words.split("\n")
+negative_words = negative_words[35:]
+
+ip_neg_word = " ".join([w for w in ip_string_words if w in negative_words])
+wordcloud_neg = WordCloud(
+                background_color = 'black',
+                width = 1800,
+                height = 1300
+               ).generate(ip_neg_word ) 
+plt.imshow(wordcloud_neg )
+            
